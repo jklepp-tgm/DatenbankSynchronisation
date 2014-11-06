@@ -1,27 +1,22 @@
 CREATE TABLE m_animal (
- Wissenschaftlicher Name VARCHAR(255) NOT NULL
+ wname VARCHAR(255) NOT NULL
 );
 
-ALTER TABLE m_animal ADD CONSTRAINT PK_m_animal PRIMARY KEY (Wissenschaftlicher Name);
+ALTER TABLE m_animal ADD CONSTRAINT PK_m_animal PRIMARY KEY (wname);
 
-
-CREATE TABLE Sprache (
+CREATE TABLE language (
  language VARCHAR(63) NOT NULL
 );
 
-ALTER TABLE Sprache ADD CONSTRAINT PK_Sprache PRIMARY KEY (language);
-
+ALTER TABLE language ADD CONSTRAINT PK_language PRIMARY KEY (language);
 
 CREATE TABLE translation (
- Wissenschaftlicher Name VARCHAR(255) NOT NULL,
+ wname VARCHAR(255) NOT NULL,
  language VARCHAR(63) NOT NULL,
  tname VARCHAR(255)
 );
 
-ALTER TABLE translation ADD CONSTRAINT PK_translation PRIMARY KEY (Wissenschaftlicher Name,language);
+ALTER TABLE translation ADD CONSTRAINT PK_translation PRIMARY KEY (wname,language);
 
-
-ALTER TABLE translation ADD CONSTRAINT FK_translation_0 FOREIGN KEY (Wissenschaftlicher Name) REFERENCES m_animal (Wissenschaftlicher Name);
-ALTER TABLE translation ADD CONSTRAINT FK_translation_1 FOREIGN KEY (language) REFERENCES Sprache (language);
-
-
+ALTER TABLE translation ADD CONSTRAINT FK_translation_0 FOREIGN KEY (wname) REFERENCES m_animal (wname);
+ALTER TABLE translation ADD CONSTRAINT FK_translation_1 FOREIGN KEY (language) REFERENCES language (language);
