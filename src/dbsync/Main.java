@@ -1,15 +1,14 @@
 package dbsync;
 
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
-import java.util.*;
 import com.mysql.jdbc.jdbc2.optional.MysqlDataSource;
 import org.postgresql.jdbc2.optional.SimpleDataSource;
 
-import javax.sql.DataSource;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Main
 {
@@ -87,7 +86,7 @@ public class Main
 				Long count = 0L;
 				while(existing.next())
 				{
-					count = (long)existing.getObject(1);
+					count = (Long)existing.getObject(1);
 				}
 				existing.close();
 				
@@ -112,7 +111,7 @@ public class Main
 				Long count = 0L;
 				while(existing.next())
 				{
-					count = (long)existing.getObject(1);
+					count = (Long)existing.getObject(1);
 				}
 				existing.close();
 				
@@ -183,7 +182,7 @@ public class Main
 				Long count = 0L;
 				while(existing.next())
 				{
-					count = (long)existing.getObject(1);
+					count = (Long)existing.getObject(1);
 				}
 				existing.close();
 				
@@ -206,7 +205,7 @@ public class Main
 				Long count = 0L;
 				while(existing.next())
 				{
-					count = (long)existing.getObject(1);
+					count = (Long)existing.getObject(1);
 				}
 				existing.close();
 				
@@ -241,7 +240,7 @@ public class Main
 				Long count = 0L;
 				while(existing.next())
 				{
-					count = (long)existing.getObject(1);
+					count = (Long)existing.getObject(1);
 				}
 				existing.close();
 				

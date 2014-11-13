@@ -1,3 +1,5 @@
+package dbsync;
+
 public class Animallog
 {
 	public String wnameold;
