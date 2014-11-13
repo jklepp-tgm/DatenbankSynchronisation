@@ -9,6 +9,9 @@ Datenbank Synchronisation
 .. toctree::
    :maxdepth: 2
 
+   db_design
+   synchronisation
+
 Time recordings
 ~~~~~~~~~~~~~~~
 
