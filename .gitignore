@@ -72,3 +72,6 @@ tmp/**/*
 # PDT-specific
 .buildpath
 docs/_build/
+
+# don't push the configuration file
+configuration.json

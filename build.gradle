@@ -28,7 +28,7 @@ sourceSets {
             srcDir 'src'
         }
         resources {
-            srcDir 'docs'
+            srcDir 'src'
         }
     }
 }

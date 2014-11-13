@@ -12,6 +12,10 @@ import org.slf4j.LoggerFactory;
 
 import dbsync.ConnectionFactory.EDBDriver;
 
+/**
+ * This class handles the synchronization FROM the PostGre database TO a MySQL
+ * one.
+ */
 public class PostgreHandler
 {
 	final static Logger logger = LoggerFactory.getLogger(PostgreHandler.class);
@@ -26,10 +30,16 @@ public class PostgreHandler
 		}
 		catch (SQLException ex)
 		{
-			logger.error("Failure while connecting to the database");
+			logger.debug("postgre error: " + ex.getMessage());
 		}
 	}
 
+	/**
+	 * Polls a list of changes made on the PostGre p_animal table and saves them
+	 * in a list.
+	 * 
+	 * @return A list of changes, null if there was a database error.
+	 */
 	public List<Animallog> getAnimallog()
 	{
 		if (this.connection == null)
@@ -37,19 +47,19 @@ public class PostgreHandler
 
 		try
 		{
+			// start a transaction
 			this.connection.setAutoCommit(false);
 
 			List<Animallog> logs = new ArrayList<Animallog>();
 
 			Statement statement = this.connection.createStatement();
-
 			ResultSet result = statement
 					.executeQuery("SELECT * FROM animallog");
 
 			while (result.next())
 			{
 				Animallog log = new Animallog();
-				System.out.println("== PG result ==");
+				System.out.println("-> PostGre changes detected");
 				for (int i = 1; i <= 8; i++)
 				{
 					log.setWnameold((String) result.getObject(1));
@@ -59,7 +69,6 @@ public class PostgreHandler
 					log.setGer_namenew((String) result.getObject(5));
 					log.setEng_namenew((String) result.getObject(6));
 					log.setAction((String) result.getObject(7));
-					log.setLstamp((Integer) result.getObject(8));
 				}
 				logs.add(log);
 			}
@@ -69,42 +78,63 @@ public class PostgreHandler
 		}
 		catch (SQLException ex)
 		{
-			logger.error("Failure while querying the database", ex);
+			logger.debug("Failure while querying the database: "
+					+ ex.getMessage());
 			return null;
 		}
 	}
-	
+
+	/**
+	 * Does the synchronization, by looping through the logs list and writing
+	 * each change (INSERT, UPDATE, DELETE) to the MySQL database. Also maps the
+	 * PostGre table to respect the constraints on the MySQL side.
+	 * 
+	 * @param logs
+	 *            A list containing the changes on the PostGre side.
+	 * @param mysql
+	 *            A Statement object from an open MySQL connection.
+	 * @return true, if synchronization was successful, false if not -
+	 *         transaction has been rolled back.
+	 */
 	public boolean doSync(List<Animallog> logs, Statement mysql)
 	{
-		if(logs == null || mysql == null) return false;
-		
+		if (logs == null || mysql == null)
+			return false;
+
 		for (Animallog log : logs)
 		{
 			try
 			{
+				// INSERT
 				if (log.getAction().equals("new"))
 				{
+					// if there is no row in the m_animal table yet, create one
 					ResultSet existing = mysql
 							.executeQuery("SELECT COUNT(*) FROM m_animal WHERE wname='"
 									+ log.getWnamenew() + "'");
 
 					Long count = 0L;
-					while (existing.next())
+					if (existing.next())
 					{
 						count = (Long) existing.getObject(1);
 					}
 					existing.close();
 
+					// ON DUPLICATE KEY: replace currently existing key.
 					if (count == 0)
 						mysql.executeUpdate("INSERT INTO m_animal VALUES('"
-								+ log.getWnamenew() + "')");
-					
+								+ log.getWnamenew()
+								+ "') ON DUPLICATE KEY UPDATE wname = '"
+								+ log.getWnamenew() + "'");
+
+					// actually insert t he translations, if they exist.
 					if (log.getGer_namenew() != null
 							&& log.getGer_namenew().length() > 0)
 					{
 						mysql.executeUpdate(String
-								.format("INSERT INTO translation VALUES('%s', '%s', '%s');",
+								.format("INSERT INTO translation VALUES('%s', '%s', '%s') ON DUPLICATE KEY UPDATE tname = '%s';",
 										log.getWnamenew(), "ger",
+										log.getGer_namenew(),
 										log.getGer_namenew()));
 					}
 
@@ -112,13 +142,17 @@ public class PostgreHandler
 							&& log.getEng_namenew().length() > 0)
 					{
 						mysql.executeUpdate(String
-								.format("INSERT INTO translation VALUES('%s', '%s', '%s');",
+								.format("INSERT INTO translation VALUES('%s', '%s', '%s') ON DUPLICATE KEY UPDATE tname = '%s';",
 										log.getWnamenew(), "eng",
+										log.getEng_namenew(),
 										log.getEng_namenew()));
 					}
 				}
+				// UPDATE
 				else if (log.getAction().equals("update"))
 				{
+					// basically the same as insert, just with different column
+					// locations
 					ResultSet existing = mysql
 							.executeQuery("SELECT COUNT(*) FROM m_animal WHERE wname='"
 									+ log.getWnamenew() + "'");
@@ -134,12 +168,15 @@ public class PostgreHandler
 						mysql.executeUpdate("INSERT INTO m_animal VALUES('"
 								+ log.getWnamenew() + "')");
 
+					// update the already existing translations only if the ones
+					// on the PostGre side are not empty.
 					if (log.getGer_namenew() != null
 							&& log.getGer_namenew().length() > 0)
 					{
 						mysql.executeUpdate(String
 								.format("UPDATE translation SET wname='%s', tname='%s' WHERE wname='%s' AND language='%s';",
-										log.getWnamenew(), log.getGer_namenew(),
+										log.getWnamenew(),
+										log.getGer_namenew(),
 										log.getWnameold(), "ger"));
 					}
 
@@ -148,27 +185,21 @@ public class PostgreHandler
 					{
 						mysql.executeUpdate(String
 								.format("UPDATE translation SET wname='%s', tname='%s' WHERE wname='%s' AND language='%s';",
-										log.getWnamenew(), log.getEng_namenew(),
+										log.getWnamenew(),
+										log.getEng_namenew(),
 										log.getWnameold(), "eng"));
 					}
 				}
+				// DELETE
 				else if (log.getAction().equals("delete"))
 				{
 					String query = "DELETE FROM translation WHERE wname='%s' AND language='%s';";
 
-					if (log.getGer_nameold() != null
-							&& log.getGer_nameold().length() > 0)
-					{
-						mysql.executeUpdate(String.format(query, log.getWnameold(),
-								"ger"));
-					}
-
-					if (log.getEng_nameold() != null
-							&& log.getEng_nameold().length() > 0)
-					{
-						mysql.executeUpdate(String.format(query, log.getWnameold(),
-								"eng"));
-					}
+					// first, remove all translations
+					mysql.executeUpdate(String.format(query, log.getWnameold(),
+							"ger"));
+					mysql.executeUpdate(String.format(query, log.getWnameold(),
+							"eng"));
 
 					ResultSet existing = mysql
 							.executeQuery("SELECT COUNT(*) FROM translation WHERE wname='"
@@ -181,6 +212,8 @@ public class PostgreHandler
 					}
 					existing.close();
 
+					// and if there are actually no translations left, delete
+					// the entry in the m_animal table too.
 					if (count == 0)
 						mysql.executeUpdate("DELETE FROM m_animal WHERE wname='"
 								+ log.getWnameold() + "'");
@@ -188,14 +221,19 @@ public class PostgreHandler
 			}
 			catch (SQLException ex)
 			{
-				logger.error("[Postgre] Database error", ex);
+				logger.debug("[Postgre] Database error: " + ex.getMessage());
 				return false;
 			}
 		}
-		
+
 		return true;
 	}
-	
+
+	/**
+	 * Gets the connection.
+	 *
+	 * @return the connection
+	 */
 	public Connection getConnection()
 	{
 		return this.connection;

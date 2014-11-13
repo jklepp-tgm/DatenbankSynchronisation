@@ -8,5 +8,6 @@ Trigger, log Tabellen             2014-11-06 13:00 16:00   03:00
 DBSync implementation             2014-11-10 10:00 11:30   01:30
 DBSync implementation             2014-11-11 10:00 12:20   02:20
 DBSync implementation             2014-11-12 10:10 10:50   00:50
-**TOTAL**                                                **07:00**
+DBSync implementation             2014-11-13 12:30 16:00   03:30
+**TOTAL**                                                **10:30**
 ================================= ========== ===== ===== =========

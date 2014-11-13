@@ -16,7 +16,6 @@ public class Animallog
 	private String ger_namenew;
 	private String eng_namenew;
 	private String action;
-	private Integer lstamp;
 	
 	/**
 	 * Gets the wnameold.
@@ -156,25 +155,5 @@ public class Animallog
 	public void setAction(String action)
 	{
 		this.action = action;
-	}
-	
-	/**
-	 * Gets the lstamp.
-	 *
-	 * @return the lstamp
-	 */
-	public Integer getLstamp()
-	{
-		return lstamp;
-	}
-	
-	/**
-	 * Sets the lstamp.
-	 *
-	 * @param lstamp the new lstamp
-	 */
-	public void setLstamp(Integer lstamp)
-	{
-		this.lstamp = lstamp;
 	}
 }

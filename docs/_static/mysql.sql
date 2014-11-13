@@ -1,3 +1,6 @@
+CREATE DATABASE dbsync;
+USE dbsync;
+
 CREATE TABLE m_animal (
  wname VARCHAR(255) NOT NULL
 );
@@ -36,8 +39,7 @@ CREATE TABLE translationlog
     wnamenew VARCHAR(255),
     languagenew VARCHAR(64),
     tnamenew VARCHAR(255),
-    action ENUM('new', 'update', 'delete'),
-    lstamp INTEGER
+    action ENUM('new', 'update', 'delete')
 )ENGINE=INNODB;
 
 DELIMITER //
@@ -51,8 +53,7 @@ BEGIN
         NEW.wname,
         NEW.language,
         NEW.tname,
-        'new',
-        UNIX_TIMESTAMP(NOW()));
+        'new');
 END;//
 
 CREATE TRIGGER after_update_translation AFTER UPDATE ON translation
@@ -65,8 +66,7 @@ BEGIN
         NEW.wname,
         NEW.language,
         NEW.tname,
-        'update',
-        UNIX_TIMESTAMP(NOW()));
+        'update');
 END;//
 
 CREATE TRIGGER after_delete_translation AFTER DELETE ON translation
@@ -79,8 +79,10 @@ BEGIN
         NULL,
         NULL,
         NULL,
-        'delete',
-        UNIX_TIMESTAMP(NOW()));
+        'delete');
 END;//
 
 DELIMITER ;
+
+INSERT INTO language VALUES('ger');
+INSERT INTO language VALUES('eng');

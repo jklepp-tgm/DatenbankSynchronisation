@@ -1,20 +1,11 @@
 package dbsync;
 
-import com.mysql.jdbc.jdbc2.optional.MysqlDataSource;
-import org.postgresql.jdbc2.optional.SimpleDataSource;
-
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.ArrayList;
-import java.util.List;
-
+/**
+ * NO LONGER IN USE
+ * @deprecated
+ */
 public class AllInOne
 {
-	private static String psqlPW = "";
-	private static String msqlPW = "";
-
 	public static void main(String[] args) throws Exception
 	{
 		/*
