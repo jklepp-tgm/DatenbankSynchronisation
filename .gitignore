@@ -72,4 +72,8 @@ tmp/**/*
 # PDT-specific
 .buildpath
 docs/_build/
+
 !gradle/wrapper/gradle-wrapper.jar
+
+# don't push the configuration file
+configuration.json
