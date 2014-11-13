@@ -72,3 +72,4 @@ tmp/**/*
 # PDT-specific
 .buildpath
 docs/_build/
+!gradle/wrapper/gradle-wrapper.jar
