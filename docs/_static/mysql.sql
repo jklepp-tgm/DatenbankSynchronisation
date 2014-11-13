@@ -16,10 +16,16 @@ CREATE TABLE translation (
  tname VARCHAR(255)
 );
 
-ALTER TABLE translation ADD CONSTRAINT PK_translation PRIMARY KEY (wname,language);
+ALTER TABLE translation
+    ADD CONSTRAINT PK_translation
+    PRIMARY KEY (wname,language);
 
-ALTER TABLE translation ADD CONSTRAINT FK_translation_0 FOREIGN KEY (wname) REFERENCES m_animal (wname);
-ALTER TABLE translation ADD CONSTRAINT FK_translation_1 FOREIGN KEY (language) REFERENCES language (language);
+ALTER TABLE translation
+    ADD CONSTRAINT FK_translation_0
+    FOREIGN KEY (wname) REFERENCES m_animal (wname);
+ALTER TABLE translation
+    ADD CONSTRAINT FK_translation_1
+    FOREIGN KEY (language) REFERENCES language (language);
 
 -- TRIGGER
 CREATE TABLE translationlog
@@ -38,19 +44,43 @@ DELIMITER //
 CREATE TRIGGER after_insert_translation AFTER INSERT ON translation
 FOR EACH ROW
 BEGIN
-    INSERT INTO translationlog VALUES(NULL, NULL, NULL, NEW.wname, NEW.language, NEW.tname, 'new', UNIX_TIMESTAMP(NOW()));
+    INSERT INTO translationlog VALUES(
+        NULL,
+        NULL,
+        NULL,
+        NEW.wname,
+        NEW.language,
+        NEW.tname,
+        'new',
+        UNIX_TIMESTAMP(NOW()));
 END;//
 
 CREATE TRIGGER after_update_translation AFTER UPDATE ON translation
 FOR EACH ROW
 BEGIN
-    INSERT INTO translationlog VALUES(OLD.wname, OLD.language, OLD.tname, NEW.wname, NEW.language, NEW.tname, 'update', UNIX_TIMESTAMP(NOW()));
+    INSERT INTO translationlog VALUES(
+        OLD.wname,
+        OLD.language,
+        OLD.tname,
+        NEW.wname,
+        NEW.language,
+        NEW.tname,
+        'update',
+        UNIX_TIMESTAMP(NOW()));
 END;//
 
 CREATE TRIGGER after_delete_translation AFTER DELETE ON translation
 FOR EACH ROW
 BEGIN
-    INSERT INTO translationlog VALUES(OLD.wname, OLD.language, OLD.tname, NULL, NULL, NULL, 'delete', UNIX_TIMESTAMP(NOW()));
+    INSERT INTO translationlog VALUES(
+        OLD.wname,
+        OLD.language,
+        OLD.tname,
+        NULL,
+        NULL,
+        NULL,
+        'delete',
+        UNIX_TIMESTAMP(NOW()));
 END;//
 
 DELIMITER ;

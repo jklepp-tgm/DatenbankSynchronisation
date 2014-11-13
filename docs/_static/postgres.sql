@@ -32,24 +32,45 @@ CREATE TABLE animallog
 
 CREATE OR REPLACE FUNCTION handle_delete() RETURNS trigger AS $handle_delete$
 BEGIN
-    INSERT INTO animallog VALUES(OLD.wname, OLD.ger_name, OLD.eng_name, NULL, NULL, NULL, 'delete', extract(epoch from now()));
-    
+    INSERT INTO animallog VALUES(
+        OLD.wname,
+        OLD.ger_name,
+        OLD.eng_name,
+        NULL,
+        NULL,
+        NULL,
+        'delete',
+        extract(epoch from now()));
     RETURN OLD;
 END;
 $handle_delete$ LANGUAGE plpgsql;
 
 CREATE OR REPLACE FUNCTION handle_update() RETURNS trigger AS $handle_update$
 BEGIN
-    INSERT INTO animallog VALUES(OLD.wname, OLD.ger_name, OLD.eng_name, NEW.wname, NEW.ger_name, NEW.eng_name, 'update', extract(epoch from now()));
-    
+    INSERT INTO animallog VALUES(
+        OLD.wname,
+        OLD.ger_name,
+        OLD.eng_name,
+        NEW.wname,
+        NEW.ger_name,
+        NEW.eng_name,
+        'update',
+        extract(epoch from now()));
     RETURN NEW;
 END;
 $handle_update$ LANGUAGE plpgsql;
 
 CREATE OR REPLACE FUNCTION handle_new() RETURNS trigger AS $handle_new$
 BEGIN
-    INSERT INTO animallog VALUES(NULL, NULL, NULL, NEW.wname, NEW.ger_name, NEW.eng_name, 'new', extract(epoch from now()));
-    
+    INSERT INTO animallog VALUES(
+        NULL,
+        NULL,
+        NULL,
+        NEW.wname,
+        NEW.ger_name,
+        NEW.eng_name,
+        'new',
+        extract(epoch from now()));
     RETURN NEW;
 END;
 $handle_new$ LANGUAGE plpgsql;
